@@ -18,33 +18,32 @@ class Arrow : public sf::Drawable, public sf::Transformable {
             states.transform *= getTransform();
             target.draw(vertices, states);
         }
-        // void setOutlineColor(const Color);
 
     public:
-        float x;    // x position
-        float y;    // y position
-        float dx;   // change in x (speed)
-        float dy;   // change in y (speed)
-        float a;    // heading angle
-        float da;   // change in rotation
-        int moving; // 1: forward, 0: stationary, -1: backward
-        
-        float acceleration;
+        float x;
+        float y;
+        float a;
+        float movementSpeed;
         float rotationalSpeed;
-        float maxSpeed;
+
+        // float dx;       // change in x (speed)
+        // float dy;       // change in y (speed)
+        // float da;       // change in rotation
+        // float acceleration;
+        // float maxSpeed;
         
         Arrow(unsigned int width, unsigned int height) {
             x = width / 2;
             y = height / 2;
-            dx = 0;
-            dy = 0;
-            a = 90;
-            da = 0;
-            moving = 0;
+            a = 0;
+            movementSpeed = 0;
+            rotationalSpeed = 0;
 
-            acceleration = 0.1;
-            rotationalSpeed = 5;
-            maxSpeed = 0.0000001;
+            // dx = 0;
+            // dy = 0;
+            // da = 0;
+            // acceleration = 0.1;
+            // maxSpeed = 1;
             
             vertices.setPrimitiveType(sf::Triangles);
             vertices.resize(3);
@@ -54,17 +53,37 @@ class Arrow : public sf::Drawable, public sf::Transformable {
         }
 
         void update() {
-            x += dx;
-            y += dy;
-            a += da;
 
-            // dx += moving * 1 * cos(degToRad(a));
-            // dy += moving * 1 * sin(degToRad(a));
+            x += movementSpeed * cos(degToRad(a));
+            y += movementSpeed * sin(degToRad(a));
+            a += rotationalSpeed;
 
-            dx += min(moving * acceleration * cos(degToRad(a)), maxSpeed * cos(degToRad(a)));
-            cout << "dx: " << dx << endl;
-            dy += min(moving * acceleration * sin(degToRad(a)), maxSpeed * sin(degToRad(a)));
-            cout << "dy: " << dx << endl;
+            // x += dx;
+            // y += dy;
+            // a += da;
+
+            // dx += moving * acceleration * cos(degToRad(a));
+            // cout << "dx: " << dx << endl;
+            // dy += moving * acceleration * sin(degToRad(a));
+            // cout << "dy: " << dx << endl;
+
+            // if (dx >= 0) {
+            //     // dx = min(dx, maxSpeed * cos(degToRad(a)));
+            //     dx = min(dx, maxSpeed);
+            // }
+            // else if (dx < 0) {
+            //     // dx = max(dx, -maxSpeed * cos(degToRad(180 + a)));
+            //     dx = max(dx, -maxSpeed);
+            // }
+
+            // if (dy >= 0) {
+            //     // dy = min(dy, maxSpeed * sin(degToRad(a)));
+            //     dy = min(dy, maxSpeed);
+            // }
+            // else if (dy < 0) {
+            //     // dy = max(dy, -maxSpeed * sin(degToRad(180 + a)));
+            //     dy = max(dy, -maxSpeed);
+            // }
 
             x = fmod(x + 500, 500);
             y = fmod(y + 500, 500);
@@ -104,20 +123,16 @@ int main(){
                         window.close();
                         break;
                     case sf::Keyboard::Left:
-                        cout << "left press" << endl;
-                        arrow.da = arrow.rotationalSpeed;
+                        arrow.rotationalSpeed = -2.5;
                         break;
                     case sf::Keyboard::Right:
-                        cout << "right press" << endl;
-                        arrow.da = -arrow.rotationalSpeed;
+                        arrow.rotationalSpeed = 2.5;
                         break;
                     case sf::Keyboard::Up:
-                        arrow.moving = 1;
-                        cout << "up press" << endl;
+                        arrow.movementSpeed = 2;
                         break;
                     case sf::Keyboard::Down:
-                        arrow.moving = -1;
-                        cout << "down press" << endl;
+                        arrow.movementSpeed = -2;
                         break;
                 }
             }
@@ -125,56 +140,20 @@ int main(){
             if (event.type == sf::Event::KeyReleased) {
                 switch(event.key.code) {
                     case sf::Keyboard::Left:
-                        cout << "left release" << endl;
-                        // arrow.toggleRotate();
-                        // cout << arrow.rotating << endl;
-                        arrow.da = 0;
-                        break;
                     case sf::Keyboard::Right:
-                        cout << "right release" << endl;
-                        // arrow.toggleRotate();
-                        // cout << arrow.rotating << endl;
-                        arrow.da = 0;
+                        arrow.rotationalSpeed = 0;
                         break;
                     case sf::Keyboard::Up:
-                        arrow.moving = 0;
-                        arrow.dx = 0;
-                        arrow.dy = 0;
-                        cout << "up release" << endl;
-                        break;
                     case sf::Keyboard::Down:
-                        arrow.moving = 0;
-                        arrow.dx = 0;
-                        arrow.dy = 0;
-                        cout << "down release" << endl;
+                        arrow.movementSpeed = 0;
                         break;
                 }
             }
-            // if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-            //     cout << "up" << endl;
-            //     arrow.move(3 * cos(degToRad(arrow.getRotation())), 3 * sin(degToRad(arrow.getRotation())));
-            // }
-            // else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-            //     cout << "down" << endl;
-            //     arrow.move(-3 * cos(degToRad(arrow.getRotation())), -3 * sin(degToRad(arrow.getRotation())));
-            // }
-            // if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
-            //     cout << "left" << endl;
-            //     arrow.rotate(-5.f);
-            // }
-            // else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
-            //     cout << "right" << endl;
-            //     arrow.rotate(5.f);
-            // }
-            // else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
-            //     window.close();
-            // }
         }
+
         arrow.update();
         arrow.setPosition(arrow.x, arrow.y);
-        // arrow.move();
         arrow.setRotation(arrow.a);
-        // arrow.rotate();
 
         window.clear(sf::Color::Blue);
         window.draw(arrow);
