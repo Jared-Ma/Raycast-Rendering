@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <cmath>
+#include <vector>
 using namespace std;
 
 float degToRad(float deg) {
@@ -11,14 +12,56 @@ float radToDeg(float rad) {
     return rad * 180 / M_PI;
 }
 
+bool lineLineCollision(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4) {
+    float a = ((y1-y3)*(x4-x3) - (x1-x3)*(y4-y3)) / ((x2-x1)*(y4-y3) - (y2-y1)*(x4-x3));
+    float b = ((y1-y3)*(x2-x1) - (x1-x3)*(y2-y1)) / ((x2-x1)*(y4-y3) - (y2-y1)*(x4-x3));
+
+    cout << a << endl;
+    cout << b << endl;
+
+    if (a >= 0 && a <= 1 && b >= 0 && b <= 1) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+// bool lineRectCollision(sf::Vector2f p1, sf::Vector2f p2, sf::FloatRect rect) {
+    // bool left = lineLineCollision(p1.x, p1.y, p2.x, p2.y, rect.top, rect.left, rect.top + rect.height, rect.left);
+    // bool right = lineLineCollision(p1.x, p1.y, p2.x, p2.y, rect.top, rect.left + rect.width, rect.top + rect.height, rect.left + rect.width);
+    // bool top = lineLineCollision(p1.x, p1.y, p2.x, p2.y, rect.top, rect.left, rect.top, rect.left + rect.height);
+    // bool bottom = lineLineCollision(p1.x, p1.y, p2.x, p2.y, rect.top + rect.height, rect.left, rect.top + rect.height, rect.left + rect.width);
+bool lineRectCollision(float x1, float y1, float x2, float y2, sf::FloatRect rect) {
+    bool left = lineLineCollision(x1, y1, x2, y2, rect.top, rect.left, rect.top + rect.height, rect.left);
+    bool right = lineLineCollision(x1, y1, x2, y2, rect.top, rect.left + rect.width, rect.top + rect.height, rect.left + rect.width);
+    bool top = lineLineCollision(x1, y1, x2, y2, rect.top, rect.left, rect.top, rect.left + rect.height);
+    bool bottom = lineLineCollision(x1, y1, x2, y2, rect.top + rect.height, rect.left, rect.top + rect.height, rect.left + rect.width);
+
+    // cout << x1 << endl;
+    // cout << y1 << endl;
+    // cout << x2 << endl;
+    // cout << y2 << endl;
+    // cout << "left: " << left << endl;
+    // cout << "right: " << right << endl;
+    // cout << "top: " << top << endl;
+    // cout << "bottom: " << bottom << endl;
+
+    if (left || right || top || bottom) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
 class Arrow : public sf::Drawable, public sf::Transformable {
     private:
-        sf::VertexArray vertices;
-        void draw(sf::RenderTarget &target, sf::RenderStates states) const {
+        virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const {
             states.transform *= getTransform();
             target.draw(vertices, states);
         }
-
+        
     public:
         float x;
         float y;
@@ -26,11 +69,8 @@ class Arrow : public sf::Drawable, public sf::Transformable {
         float movementSpeed;
         float rotationalSpeed;
 
-        // float dx;       // change in x (speed)
-        // float dy;       // change in y (speed)
-        // float da;       // change in rotation
-        // float acceleration;
-        // float maxSpeed;
+        sf::VertexArray vertices;
+        sf::FloatRect boundingBox;
         
         Arrow(unsigned int width, unsigned int height) {
             x = width / 2;
@@ -38,56 +78,39 @@ class Arrow : public sf::Drawable, public sf::Transformable {
             a = 0;
             movementSpeed = 0;
             rotationalSpeed = 0;
-
-            // dx = 0;
-            // dy = 0;
-            // da = 0;
-            // acceleration = 0.1;
-            // maxSpeed = 1;
             
             vertices.setPrimitiveType(sf::Triangles);
             vertices.resize(3);
-            vertices[0].position = sf::Vector2f(x + 25, y);
-            vertices[1].position = sf::Vector2f(x - 25, y + 20);
-            vertices[2].position = sf::Vector2f(x - 25, y - 20);
+            vertices[0].position = sf::Vector2f(x + 10, y);
+            vertices[1].position = sf::Vector2f(x - 10, y + 7);
+            vertices[2].position = sf::Vector2f(x - 10, y - 7);
+            boundingBox = vertices.getBounds();
         }
 
         void update() {
 
-            x += movementSpeed * cos(degToRad(a));
-            y += movementSpeed * sin(degToRad(a));
+            float dx = movementSpeed * cos(degToRad(a));
+            float dy = movementSpeed * sin(degToRad(a));
+
+            sf::Transform translation;
+            translation.translate(dx, dy);
+
+            sf::Transform rotation;
+            rotation.rotate(rotationalSpeed, x, y);
+
+            x += dx;
+            y += dy;
             a += rotationalSpeed;
-
-            // x += dx;
-            // y += dy;
-            // a += da;
-
-            // dx += moving * acceleration * cos(degToRad(a));
-            // cout << "dx: " << dx << endl;
-            // dy += moving * acceleration * sin(degToRad(a));
-            // cout << "dy: " << dx << endl;
-
-            // if (dx >= 0) {
-            //     // dx = min(dx, maxSpeed * cos(degToRad(a)));
-            //     dx = min(dx, maxSpeed);
-            // }
-            // else if (dx < 0) {
-            //     // dx = max(dx, -maxSpeed * cos(degToRad(180 + a)));
-            //     dx = max(dx, -maxSpeed);
-            // }
-
-            // if (dy >= 0) {
-            //     // dy = min(dy, maxSpeed * sin(degToRad(a)));
-            //     dy = min(dy, maxSpeed);
-            // }
-            // else if (dy < 0) {
-            //     // dy = max(dy, -maxSpeed * sin(degToRad(180 + a)));
-            //     dy = max(dy, -maxSpeed);
-            // }
 
             x = fmod(x + 500, 500);
             y = fmod(y + 500, 500);
             a = fmod(a, 360);
+
+            sf::Transform transform = translation * rotation;
+            vertices[0].position = transform.transformPoint(vertices[0].position);
+            vertices[1].position = transform.transformPoint(vertices[1].position);
+            vertices[2].position = transform.transformPoint(vertices[2].position);
+            boundingBox = vertices.getBounds();
         }
 };
 
@@ -95,9 +118,33 @@ class Arrow : public sf::Drawable, public sf::Transformable {
 
 // }
 
-// class Wall {
-    
-// }
+class Wall : public sf::Drawable {
+    private:
+            virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const {
+                target.draw(vertices, states);
+            }
+            
+    public:
+        float x1;
+        float y1;
+        float x2;
+        float y2;
+        sf::VertexArray vertices;
+        sf::FloatRect boundingBox;
+        
+        Wall(float x1, float y1, float x2, float y2) {
+            this->x1 = x1;
+            this->y1 = y1;
+            this->x2 = x2;
+            this->y2 = y2;
+
+            vertices.setPrimitiveType(sf::Lines);
+            vertices.resize(2);
+            vertices[0].position = sf::Vector2f(x1, y1);
+            vertices[1].position = sf::Vector2f(x2, y2);
+            boundingBox = vertices.getBounds();
+        }
+};
 
 
 
@@ -107,9 +154,12 @@ int main(){
     window.setKeyRepeatEnabled(false);
 
     Arrow arrow(window.getSize().x, window.getSize().y);
-    arrow.setOrigin(arrow.x, arrow.y);
-    arrow.setPosition(arrow.x, arrow.y);
-    arrow.setRotation(arrow.a);
+
+    vector<Wall> walls;
+    walls.push_back(Wall(100, 100, 400, 100));
+    // walls.push_back(Wall(400, 100, 400, 400));
+    // walls.push_back(Wall(400, 400, 100, 400));
+    // walls.push_back(Wall(100, 400, 100, 100));
 
     while (window.isOpen()) {
 
@@ -151,12 +201,32 @@ int main(){
             }
         }
 
+        // if (lineRectCollision(walls[0].vertices[0].position, walls[0].vertices[1].position, arrow.boundingBox)) {
+        //     cout << "collision" << endl;
+        // }
+        if (lineRectCollision(walls[0].x1, walls[0].y1, walls[0].x2, walls[0].y2, arrow.boundingBox)) {
+            cout << "collision" << endl;
+        }
+        else {
+            cout << "no collision" << endl;
+        }
+
+        
+
         arrow.update();
-        arrow.setPosition(arrow.x, arrow.y);
-        arrow.setRotation(arrow.a);
+        sf::RectangleShape rectangle;
+        rectangle.setOutlineThickness(1);
+        rectangle.setFillColor(sf::Color::Transparent);
+        rectangle.setSize(sf::Vector2f(arrow.boundingBox.width, arrow.boundingBox.height));
+        rectangle.setPosition(arrow.boundingBox.left, arrow.boundingBox.top);
 
         window.clear(sf::Color::Blue);
-        window.draw(arrow);
+        for (auto wall = walls.begin(); wall != walls.end(); wall++) {
+            window.draw(*wall);
+        }
+        window.draw(rectangle);
+        window.draw(arrow.vertices);
+        
         window.display();
     }
 
