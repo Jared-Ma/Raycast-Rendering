@@ -4,16 +4,10 @@
 #include <vector>
 #include "arrow.hpp"
 #include "wall.hpp"
+#include "ray.hpp"
+#include "helper.hpp"
 
 using namespace std;
-
-float degToRad(float deg) {
-    return deg * M_PI / 180;
-}
-
-float radToDeg(float rad) {
-    return rad * 180 / M_PI;
-}
 
 bool lineLineCollision(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4) {
     float numerator1 = (y1-y3)*(x4-x3) - (x1-x3)*(y4-y3);
@@ -73,8 +67,8 @@ bool checkCollision(Arrow arrow, const vector<Wall> &walls, float dx, float dy) 
 }
 
 void update(Arrow &arrow, const vector<Wall> &edges, const vector<Wall> &walls) {
-    float dx = arrow.movementSpeed * cos(degToRad(arrow.a));
-    float dy = arrow.movementSpeed * sin(degToRad(arrow.a));
+    float dx = arrow.movementSpeed * cos(toRadians(arrow.a));
+    float dy = arrow.movementSpeed * sin(toRadians(arrow.a));
 
     if (checkCollision(arrow, edges, dx, dy) == true || checkCollision(arrow, walls, dx, dy) == true) {
         cout << "collision" << endl;
@@ -105,7 +99,7 @@ void update(Arrow &arrow, const vector<Wall> &edges, const vector<Wall> &walls) 
     arrow.collisionBox.setPosition(arrow.x - arrow.width/2, arrow.y - arrow.width/2);
 }
 
-int main(){
+int main() {
     sf::RenderWindow window(sf::VideoMode(500, 500), "Raycasting", sf::Style::Resize);
     window.setFramerateLimit(60);
     window.setKeyRepeatEnabled(false);

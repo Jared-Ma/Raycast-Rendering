@@ -1,5 +1,7 @@
 #include <SFML/Graphics.hpp>
+#include <cmath>
 #include "arrow.hpp"
+#include "helper.hpp"
 
 Arrow::Arrow(unsigned int windowWidth, unsigned int windowHeight) {
     x = windowWidth / 2;
@@ -10,6 +12,10 @@ Arrow::Arrow(unsigned int windowWidth, unsigned int windowHeight) {
     width = 14;
     height = 20;
     
+    for (int i = 0; i < 10; i += 10) {
+        rays.push_back(Ray(x, y, toRadians(i)));
+    }
+
     vertices.setPrimitiveType(sf::Triangles);
     vertices.resize(3);
     vertices[0].position = sf::Vector2f(x + height/2, y);
