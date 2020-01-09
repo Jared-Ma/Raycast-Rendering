@@ -2,6 +2,9 @@
 #include <iostream>
 #include <cmath>
 #include <vector>
+#include "arrow.hpp"
+#include "wall.hpp"
+
 using namespace std;
 
 float degToRad(float deg) {
@@ -56,80 +59,7 @@ bool lineRectCollision(float x1, float y1, float x2, float y2, sf::FloatRect rec
     }
 }
 
-class Arrow : public sf::Drawable, public sf::Transformable {
-    private:
-        virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const {
-            states.transform *= getTransform();
-            target.draw(vertices, states);
-        }
-        
-    public:
-        float x;
-        float y;
-        float a;
-        float movementSpeed;
-        float rotationalSpeed;
-        float width;
-        float height;
-
-        sf::VertexArray vertices;
-        sf::RectangleShape collisionBox;
-        
-        Arrow(unsigned int windowWidth, unsigned int windowHeight) {
-            x = windowWidth / 2;
-            y = windowHeight / 2;
-            a = 0;
-            movementSpeed = 0;
-            rotationalSpeed = 0;
-            width = 14;
-            height = 20;
-            
-            vertices.setPrimitiveType(sf::Triangles);
-            vertices.resize(3);
-            vertices[0].position = sf::Vector2f(x + height/2, y);
-            vertices[1].position = sf::Vector2f(x - height/2, y + width/2);
-            vertices[2].position = sf::Vector2f(x - height/2, y - width/2);
-
-            collisionBox.setSize(sf::Vector2f(width, width));
-            collisionBox.setPosition(x - width/2, y - width/2);
-            collisionBox.setFillColor(sf::Color::Transparent);
-            collisionBox.setOutlineThickness(1);
-        }
-};
-
-class Wall : public sf::Drawable {
-    private:
-            virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const {
-                target.draw(vertices, states);
-            }
-            
-    public:
-        sf::Vector2f p1;
-        sf::Vector2f p2;
-        sf::VertexArray vertices;
-        
-        Wall(float x1, float y1, float x2, float y2) {
-            p1.x = x1;
-            p1.y = y1;
-            p2.x = x2;
-            p2.y = y2;
-
-            vertices.setPrimitiveType(sf::Lines);
-            vertices.resize(2);
-            vertices[0].position = p1;
-            vertices[1].position = p2;
-        }
-};
-
-// class Ray : public sf::Drawable, public sf::Transformable{
-//     private:
-//         virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const {
-//                 states.transform *= getTransform();
-//                 target.draw(vertices, states);
-//             }
-// }
-
-bool checkCollision(Arrow arrow, const vector<Wall>& walls, float dx, float dy) {
+bool checkCollision(Arrow arrow, const vector<Wall> &walls, float dx, float dy) {
     arrow.x += dx;
     arrow.y += dy;
 
@@ -142,7 +72,7 @@ bool checkCollision(Arrow arrow, const vector<Wall>& walls, float dx, float dy) 
     return false;
 }
 
-void update(Arrow& arrow, const vector<Wall>& edges, const vector<Wall>& walls) {
+void update(Arrow &arrow, const vector<Wall> &edges, const vector<Wall> &walls) {
     float dx = arrow.movementSpeed * cos(degToRad(arrow.a));
     float dy = arrow.movementSpeed * sin(degToRad(arrow.a));
 
