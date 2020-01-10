@@ -19,6 +19,7 @@ class Arrow : public sf::Drawable, public sf::Transformable {
         float rotationalSpeed;
         float width;
         float height;
+        float fov;
         vector<Ray> rays;
 
         sf::VertexArray vertices;

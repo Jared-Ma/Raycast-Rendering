@@ -74,6 +74,10 @@ int main() {
     Arrow arrow(window.getSize().x, window.getSize().y);
 
     vector<Wall> walls;
+    walls.push_back(Wall(50, 50, 450, 50));
+    walls.push_back(Wall(450, 50, 450, 450));
+    walls.push_back(Wall(450, 450, 50, 450));
+    walls.push_back(Wall(50, 450, 50, 50));
     walls.push_back(Wall(100, 100, 400, 100));
     walls.push_back(Wall(400, 100, 400, 400));
     walls.push_back(Wall(400, 400, 100, 400));
@@ -128,11 +132,19 @@ int main() {
         arrow.update(edges, walls);
 
         window.clear(sf::Color::Blue);
+        
         for (auto wall = walls.begin(); wall != walls.end(); wall++) {
             window.draw(*wall);
         }
 
-        window.draw(arrow.collisionBox);
+        for (auto ray = arrow.rays.begin(); ray != arrow.rays.end(); ray++) {
+            if (!isnan((*ray).endpoint.x) && !isnan((*ray).endpoint.y)) {
+                window.draw(*ray);
+                // cout << "true" << endl;
+            }
+        }
+
+        // window.draw(arrow.collisionBox);
         window.draw(arrow.vertices);
         
         window.display();
