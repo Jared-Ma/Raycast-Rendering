@@ -1,3 +1,4 @@
+#include <cmath>
 #include "helper.hpp"
 
 float toRadians(float deg) {
