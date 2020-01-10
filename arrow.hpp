@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <vector>
+#include "wall.hpp"
 #include "ray.hpp"
 using namespace std;
 
@@ -24,6 +25,8 @@ class Arrow : public sf::Drawable, public sf::Transformable {
         sf::RectangleShape collisionBox;
         
         Arrow(unsigned int windowWidth, unsigned int windowHeight);
+
+        void update(const vector<Wall> &edges, const vector<Wall> &walls);
 };
 
 #endif

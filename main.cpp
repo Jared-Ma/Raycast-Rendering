@@ -66,39 +66,6 @@ bool checkCollision(Arrow arrow, const vector<Wall> &walls, float dx, float dy) 
     return false;
 }
 
-void update(Arrow &arrow, const vector<Wall> &edges, const vector<Wall> &walls) {
-    float dx = arrow.movementSpeed * cos(toRadians(arrow.a));
-    float dy = arrow.movementSpeed * sin(toRadians(arrow.a));
-
-    if (checkCollision(arrow, edges, dx, dy) == true || checkCollision(arrow, walls, dx, dy) == true) {
-        cout << "collision" << endl;
-        // Figure out collision resolution
-    }
-    else {
-        cout << "no collision" << endl;
-    }
-
-    sf::Transform translation;
-    translation.translate(dx, dy);
-
-    sf::Transform rotation;
-    rotation.rotate(arrow.rotationalSpeed, arrow.x, arrow.y);
-
-    arrow.x += dx;
-    arrow.y += dy;
-    arrow.a += arrow.rotationalSpeed;
-
-    arrow.x = fmod(arrow.x + 500, 500);
-    arrow.y = fmod(arrow.y + 500, 500);
-    arrow.a = fmod(arrow.a, 360);
-
-    sf::Transform transform = translation * rotation;
-    arrow.vertices[0].position = transform.transformPoint(arrow.vertices[0].position);
-    arrow.vertices[1].position = transform.transformPoint(arrow.vertices[1].position);
-    arrow.vertices[2].position = transform.transformPoint(arrow.vertices[2].position);
-    arrow.collisionBox.setPosition(arrow.x - arrow.width/2, arrow.y - arrow.width/2);
-}
-
 int main() {
     sf::RenderWindow window(sf::VideoMode(500, 500), "Raycasting", sf::Style::Resize);
     window.setFramerateLimit(60);
@@ -158,8 +125,7 @@ int main() {
             }
         }
 
-        // arrow.update(walls);
-        update(arrow, edges, walls);
+        arrow.update(edges, walls);
 
         window.clear(sf::Color::Blue);
         for (auto wall = walls.begin(); wall != walls.end(); wall++) {

@@ -2,6 +2,7 @@
 #include <cmath>
 #include "arrow.hpp"
 #include "helper.hpp"
+// using namespace std;
 
 Arrow::Arrow(unsigned int windowWidth, unsigned int windowHeight) {
     x = windowWidth / 2;
@@ -26,6 +27,39 @@ Arrow::Arrow(unsigned int windowWidth, unsigned int windowHeight) {
     collisionBox.setPosition(x - width/2, y - width/2);
     collisionBox.setFillColor(sf::Color::Transparent);
     collisionBox.setOutlineThickness(1);
+}
+
+void Arrow::update(const vector<Wall> &edges, const vector<Wall> &walls) {
+    float dx = movementSpeed * cos(toRadians(a));
+    float dy = movementSpeed * sin(toRadians(a));
+
+    // if (checkCollision(this, edges, dx, dy) == true || checkCollision(this, walls, dx, dy) == true) {
+    //     cout << "collision" << endl;
+    //     // Figure out collision resolution
+    // }
+    // else {
+    //     cout << "no collision" << endl;
+    // }
+
+    sf::Transform translation;
+    translation.translate(dx, dy);
+
+    sf::Transform rotation;
+    rotation.rotate(rotationalSpeed, x, y);
+
+    x += dx;
+    y += dy;
+    a += rotationalSpeed;
+
+    x = fmod(x + 500, 500);
+    y = fmod(y + 500, 500);
+    a = fmod(a, 360);
+
+    sf::Transform transform = translation * rotation;
+    vertices[0].position = transform.transformPoint(vertices[0].position);
+    vertices[1].position = transform.transformPoint(vertices[1].position);
+    vertices[2].position = transform.transformPoint(vertices[2].position);
+    collisionBox.setPosition(x - width/2, y - width/2);
 }
 
 void Arrow::draw(sf::RenderTarget &target, sf::RenderStates states) const {
