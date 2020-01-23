@@ -67,11 +67,19 @@ bool checkCollision(Arrow arrow, const vector<Wall> &walls, float dx, float dy) 
 }
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode(500, 500), "Raycasting", sf::Style::Resize);
+
+    sf::View rayView(sf::FloatRect(0.f, 0.f, 500.f, 500.f));
+    sf::View renderView(sf::FloatRect(0.f, 0.f, 500.f, 500.f));
+
+    rayView.setViewport(sf::FloatRect(0.f, 0.f, 0.5f, 1.f));
+    renderView.setViewport(sf::FloatRect(0.5f, 0.f, 0.5f, 1.f));
+
+    sf::RenderWindow window(sf::VideoMode(1000, 500), "Raycasting", sf::Style::Resize);
+    window.setView(rayView);
     window.setFramerateLimit(60);
     window.setKeyRepeatEnabled(false);
 
-    Arrow arrow(window.getSize().x, window.getSize().y);
+    Arrow arrow(rayView.getSize().x, rayView.getSize().y);
 
     vector<Wall> walls;
     walls.push_back(Wall(50, 50, 450, 50));
@@ -131,6 +139,7 @@ int main() {
 
         arrow.update(edges, walls);
 
+        window.setView(rayView);
         window.clear(sf::Color::Blue);
         
         for (auto wall = walls.begin(); wall != walls.end(); wall++) {
@@ -140,7 +149,6 @@ int main() {
         for (auto ray = arrow.rays.begin(); ray != arrow.rays.end(); ray++) {
             if (!isnan((*ray).endpoint.x) && !isnan((*ray).endpoint.y)) {
                 window.draw(*ray);
-                // cout << "true" << endl;
             }
         }
 

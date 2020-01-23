@@ -49,19 +49,19 @@ void Arrow::update(const vector<Wall> &edges, const vector<Wall> &walls) {
     sf::Transform rotation;
     rotation.rotate(rotationalSpeed, x, y);
 
-    x += dx;
-    y += dy;
-    a += rotationalSpeed;
-
-    x = fmod(x + 500, 500);
-    y = fmod(y + 500, 500);
-    a = fmod(a, 360);
-
     sf::Transform transform = translation * rotation;
     vertices[0].position = transform.transformPoint(vertices[0].position);
     vertices[1].position = transform.transformPoint(vertices[1].position);
     vertices[2].position = transform.transformPoint(vertices[2].position);
     collisionBox.setPosition(x - width/2, y - width/2);
+
+    x += dx;
+    y += dy;
+    a += rotationalSpeed;
+
+    // x = fmod(x + 500, 500);
+    // y = fmod(y + 500, 500);
+    // a = fmod(a, 360);
 
     // Update rays
 
