@@ -67,14 +67,13 @@ bool checkCollision(Arrow arrow, const vector<Wall> &walls, float dx, float dy) 
 }
 
 int main() {
+    sf::View rayView(sf::FloatRect(0.f, 0.f, 540.f, 540.f));
+    sf::View renderView(sf::FloatRect(0.f, 0.f, 760.f, 540.f));
 
-    sf::View rayView(sf::FloatRect(0.f, 0.f, 500.f, 500.f));
-    sf::View renderView(sf::FloatRect(0.f, 0.f, 500.f, 500.f));
+    rayView.setViewport(sf::FloatRect(0.f, 0.f, 3/7.f, 1.f));
+    renderView.setViewport(sf::FloatRect(3/7.f, 0.f, 4/7.f, 1.f));
 
-    rayView.setViewport(sf::FloatRect(0.f, 0.f, 0.5f, 1.f));
-    renderView.setViewport(sf::FloatRect(0.5f, 0.f, 0.5f, 1.f));
-
-    sf::RenderWindow window(sf::VideoMode(1000, 500), "Raycasting", sf::Style::Resize);
+    sf::RenderWindow window(sf::VideoMode(1260, 540), "Raycasting", sf::Style::Resize);
     window.setView(rayView);
     window.setFramerateLimit(60);
     window.setKeyRepeatEnabled(false);
@@ -92,10 +91,13 @@ int main() {
     walls.push_back(Wall(100, 400, 100, 100));
 
     vector<Wall> edges;
-    edges.push_back(Wall(0, 0, 500, 0));
-    edges.push_back(Wall(500, 0, 500, 500));
-    edges.push_back(Wall(500, 500, 0, 500));
-    edges.push_back(Wall(0, 500, 0, 0));
+    edges.push_back(Wall(0, 0, 540, 0));
+    edges.push_back(Wall(540, 0, 540, 540));
+    edges.push_back(Wall(540, 540, 0, 540));
+    edges.push_back(Wall(0, 540, 0, 0));
+
+    sf::Vector2f clickPoint(NAN, NAN);
+    sf::Vector2f releasePoint(NAN, NAN);
 
     while (window.isOpen()) {
 
@@ -120,6 +122,10 @@ int main() {
                     case sf::Keyboard::Down:
                         arrow.movementSpeed = -2;
                         break;
+                    case sf::Keyboard::Space:
+                        if (!walls.empty()) {
+                            walls.pop_back();
+                        }
                 }
             }
 
@@ -135,25 +141,25 @@ int main() {
                         break;
                 }
             }
+
+            if (event.type == sf::Event::MouseButtonPressed) {
+                clickPoint = sf::Vector2f(sf::Mouse::getPosition(window));
+            }
+            if (event.type == sf::Event::MouseButtonReleased) {
+                releasePoint = sf::Vector2f(sf::Mouse::getPosition(window));
+                walls.push_back(Wall(clickPoint.x, clickPoint.y, releasePoint.x, releasePoint.y));
+
+                releasePoint = sf::Vector2f(NAN, NAN);
+                clickPoint = sf::Vector2f(NAN, NAN);
+            }
         }
 
         arrow.update(edges, walls);
         window.clear(sf::Color::Blue);
         
-        for (auto wall = walls.begin(); wall != walls.end(); wall++) {
-            window.draw(*wall);
+        for (int i = 0; i < walls.size(); i++) {
+            window.draw(walls[i]);
         }
-
-        // for (auto ray = arrow.rays.begin(); ray != arrow.rays.end(); ray++) {
-        //     if (!isnan((*ray).endpoint.x) && !isnan((*ray).endpoint.y)) {
-        //         window.draw(*ray);
-
-        //         window.setView(renderView);
-        //         sf::RectangleShape wallSegment = (sf::Vector2f(500/rays.size, 1/(cos(abs((*ray).a - arrow.a)) * (*ray).distance));
-        //         wallSegment.setPosition()
-
-        //     }
-        // }
 
         for (int i = 0; i < arrow.rays.size(); i++) {
             if (!isnan(arrow.rays[i].endpoint.x) && !isnan(arrow.rays[i].endpoint.y)) {
@@ -170,22 +176,29 @@ int main() {
                 // cout << "height: " << height << endl;
 
                 sf::RectangleShape wallSegment(sf::Vector2f(width, height));
-                wallSegment.setPosition(i*width, 250 - height/2);
+                wallSegment.setPosition(i*width, 270 - height/2);
 
                 window.draw(wallSegment);
 
                 window.setView(rayView);
             }
         }
-        // cout << endl;
-
-        // window.setView(renderView);
-        // sf::RectangleShape rectangle(sf::Vector2f(200,200));
-        // window.draw(rectangle);
-        // window.setView(rayView);
 
         // window.draw(arrow.collisionBox);
+        sf::Vector2f mousePosition = sf::Vector2f(sf::Mouse::getPosition(window));
+        sf::CircleShape cursor(2);
+        cursor.setPosition(mousePosition.x - cursor.getRadius(), mousePosition.y - cursor.getRadius());
+        window.draw(cursor);
+
         window.draw(arrow.vertices);
+
+        if (!isnan(clickPoint.x) && !isnan(clickPoint.y)) {
+            sf::VertexArray newWall(sf::Lines, 2);
+            newWall[0].position = sf::Vector2f(clickPoint);
+            newWall[1].position = sf::Vector2f(sf::Mouse::getPosition(window));
+            // newWall[1].position = mousePosition;
+            window.draw(newWall);
+        }
         
         window.display();
     }
