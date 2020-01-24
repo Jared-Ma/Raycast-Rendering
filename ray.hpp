@@ -11,6 +11,7 @@ class Ray : public sf::Drawable {
         float x;
         float y;
         float a;
+        float distance;
         sf::Vector2f direction;
         sf::Vector2f endpoint;
         sf::VertexArray vertices;

@@ -138,19 +138,51 @@ int main() {
         }
 
         arrow.update(edges, walls);
-
-        window.setView(rayView);
         window.clear(sf::Color::Blue);
         
         for (auto wall = walls.begin(); wall != walls.end(); wall++) {
             window.draw(*wall);
         }
 
-        for (auto ray = arrow.rays.begin(); ray != arrow.rays.end(); ray++) {
-            if (!isnan((*ray).endpoint.x) && !isnan((*ray).endpoint.y)) {
-                window.draw(*ray);
+        // for (auto ray = arrow.rays.begin(); ray != arrow.rays.end(); ray++) {
+        //     if (!isnan((*ray).endpoint.x) && !isnan((*ray).endpoint.y)) {
+        //         window.draw(*ray);
+
+        //         window.setView(renderView);
+        //         sf::RectangleShape wallSegment = (sf::Vector2f(500/rays.size, 1/(cos(abs((*ray).a - arrow.a)) * (*ray).distance));
+        //         wallSegment.setPosition()
+
+        //     }
+        // }
+
+        for (int i = 0; i < arrow.rays.size(); i++) {
+            if (!isnan(arrow.rays[i].endpoint.x) && !isnan(arrow.rays[i].endpoint.y)) {
+                window.draw(arrow.rays[i]);
+
+                window.setView(renderView);
+
+                float width = renderView.getSize().x / arrow.rays.size();
+                float height = 8000 / (cos(toRadians(arrow.rays[i].a - arrow.a)) * arrow.rays[i].distance);
+
+                // cout << "angle: " << arrow.rays[i].a - arrow.a << endl;
+                // cout << "distance: " << arrow.rays[i].distance << endl;
+                // cout << "width: " << width << endl;
+                // cout << "height: " << height << endl;
+
+                sf::RectangleShape wallSegment(sf::Vector2f(width, height));
+                wallSegment.setPosition(i*width, 250 - height/2);
+
+                window.draw(wallSegment);
+
+                window.setView(rayView);
             }
         }
+        // cout << endl;
+
+        // window.setView(renderView);
+        // sf::RectangleShape rectangle(sf::Vector2f(200,200));
+        // window.draw(rectangle);
+        // window.setView(rayView);
 
         // window.draw(arrow.collisionBox);
         window.draw(arrow.vertices);

@@ -7,6 +7,7 @@ Ray::Ray(float x, float y, float a) {
     this->x = x;
     this->y = y;
     this->a = a;
+    this->distance = NAN;
     
     direction = sf::Vector2f(cos(toRadians(a)), sin(toRadians(a)));
 
