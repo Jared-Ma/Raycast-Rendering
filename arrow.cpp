@@ -13,9 +13,9 @@ Arrow::Arrow(unsigned int windowWidth, unsigned int windowHeight) {
     rotationalSpeed = 0;
     width = 14;
     height = 20;
-    fov = 90;
+    fov = 100;
     
-    for (int i = -fov/2; i <= fov/2; i += 1) {
+    for (float i = -fov/2; i <= fov/2; i += 0.5) {
         rays.push_back(Ray(x, y, i));
     }
 

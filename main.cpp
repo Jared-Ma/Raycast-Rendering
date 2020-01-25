@@ -67,9 +67,11 @@ bool checkCollision(Arrow arrow, const vector<Wall> &walls, float dx, float dy) 
 }
 
 int main() {
+    sf::View mainView(sf::FloatRect(0.f, 0.f, 1260.f, 540.f));
     sf::View rayView(sf::FloatRect(0.f, 0.f, 540.f, 540.f));
     sf::View renderView(sf::FloatRect(0.f, 0.f, 760.f, 540.f));
-
+    
+    mainView.setViewport(sf::FloatRect(0.f, 0.f, 1.f, 1.f));
     rayView.setViewport(sf::FloatRect(0.f, 0.f, 3/7.f, 1.f));
     renderView.setViewport(sf::FloatRect(3/7.f, 0.f, 4/7.f, 1.f));
 
@@ -77,6 +79,12 @@ int main() {
     window.setView(rayView);
     window.setFramerateLimit(60);
     window.setKeyRepeatEnabled(false);
+
+    sf::RectangleShape border(sf::Vector2f(1260-8, 540-8));
+    border.setPosition(4, 4);
+    border.setFillColor(sf::Color::Transparent);
+    border.setOutlineColor(sf::Color(255, 255, 255, 175));
+    border.setOutlineThickness(4);
 
     Arrow arrow(rayView.getSize().x, rayView.getSize().y);
 
@@ -155,7 +163,10 @@ int main() {
         }
 
         arrow.update(edges, walls);
-        window.clear(sf::Color::Blue);
+        window.clear(sf::Color::Black);
+        window.setView(mainView);
+        window.draw(border);
+        window.setView(rayView);
         
         for (int i = 0; i < walls.size(); i++) {
             window.draw(walls[i]);
@@ -177,6 +188,8 @@ int main() {
 
                 sf::RectangleShape wallSegment(sf::Vector2f(width, height));
                 wallSegment.setPosition(i*width, 270 - height/2);
+                // wallSegment.setFillColor(sf::Color(255, 255, 255, 255));
+                wallSegment.setFillColor(sf::Color(255, 255, 255, 150*(255 - arrow.rays[i].distance)/540 + 175));
 
                 window.draw(wallSegment);
 
@@ -188,6 +201,7 @@ int main() {
         sf::Vector2f mousePosition = sf::Vector2f(sf::Mouse::getPosition(window));
         sf::CircleShape cursor(2);
         cursor.setPosition(mousePosition.x - cursor.getRadius(), mousePosition.y - cursor.getRadius());
+
         window.draw(cursor);
 
         window.draw(arrow.vertices);
